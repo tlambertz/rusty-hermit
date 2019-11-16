@@ -23,7 +23,7 @@ rusty-hermit = { path="/home/stefan/share/libhermit-rs", optional = true }
 default = []
 docs = []
 rustc-dep-of-std = ["core", "compiler_builtins/rustc-dep-of-std", "libc/rustc-dep-of-std"]
-libos = ["rusty-hermit/rustc-dep-of-std"]
+with-hermit = ["rusty-hermit/rustc-dep-of-std"]
 
 [package.metadata.docs.rs]
 features = ["docs"]
