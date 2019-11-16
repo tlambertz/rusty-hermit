@@ -1,8 +1,21 @@
+#![feature(const_fn)]
+
 #![cfg_attr(feature = "rustc-dep-of-std", no_std)]
 extern crate libc;
+#[cfg(feature = "with-hermit")]
+extern crate hermit;
 
+#[allow(unused_imports)]
 use libc::c_void;
 
+#[cfg(feature = "with-hermit")]
+use hermit::*;
+#[cfg(feature = "with-hermit")]
+pub use hermit::synch::semaphore::Semaphore;
+#[cfg(feature = "with-hermit")]
+pub use hermit::synch::recmutex::RecursiveMutex;
+
+#[cfg(not(feature = "with-hermit"))]
 extern "C" {
 	fn sys_get_processor_count() -> usize;
 	fn sys_malloc(size: usize, align: usize) -> *mut u8;
@@ -38,8 +51,8 @@ extern "C" {
 	fn sys_join(id: Tid) -> i32;
 	fn sys_yield();
 	fn sys_clock_gettime(clock_id: u64, tp: *mut timespec) -> i32;
-	fn sys_open(name: *const i8, flags: i32, mode: i32) -> i32;
-	fn sys_unlink(name: *const i8) -> i32;
+	fn sys_open(name: *const u8, flags: i32, mode: i32) -> i32;
+	fn sys_unlink(name: *const u8) -> i32;
 }
 
 pub type Tid = u32;
@@ -110,47 +123,47 @@ pub unsafe fn close(fd: i32) -> i32 {
 	sys_close(fd)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn sem_init(sem: *mut *const c_void, value: u32) -> i32 {
 	sys_sem_init(sem, value)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn sem_destroy(sem: *const c_void) -> i32 {
 	sys_sem_destroy(sem)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn sem_post(sem: *const c_void) -> i32 {
 	sys_sem_post(sem)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn sem_trywait(sem: *const c_void) -> i32 {
 	sys_sem_trywait(sem)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn sem_timedwait(sem: *const c_void, ms: u32) -> i32 {
 	sys_sem_timedwait(sem, ms)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn recmutex_init(recmutex: *mut *const c_void) -> i32 {
 	sys_recmutex_init(recmutex)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn recmutex_destroy(recmutex: *const c_void) -> i32 {
 	sys_recmutex_destroy(recmutex)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn recmutex_lock(recmutex: *const c_void) -> i32 {
 	sys_recmutex_lock(recmutex)
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn recmutex_unlock(recmutex: *const c_void) -> i32 {
 	sys_recmutex_unlock(recmutex)
 }
@@ -196,17 +209,22 @@ pub unsafe fn yield_now() {
 	sys_yield()
 }
 
-#[inline(always)]
+#[cfg(not(feature = "with-hermit"))]
 pub unsafe fn clock_gettime(clock_id: u64, tp: *mut timespec) -> i32 {
 	sys_clock_gettime(clock_id, tp)
 }
 
+#[cfg(feature = "with-hermit")]
+pub unsafe fn clock_gettime(clock_id: u64, tp: *mut timespec) -> i32 {
+    sys_clock_gettime(clock_id, tp as *mut hermit::timespec)
+}
+
 #[inline(always)]
 pub unsafe fn open(name: *const i8, flags: i32, mode: i32) -> i32 {
-	sys_open(name, flags, mode)
+	sys_open(name as *const u8, flags, mode)
 }
 
 #[inline(always)]
 pub unsafe fn unlink(name: *const i8) -> i32 {
-	sys_unlink(name)
+	sys_unlink(name as *const u8)
 }
