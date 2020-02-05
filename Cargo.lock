@@ -243,18 +243,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "managed"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdcec5e97041c7f0f1c5b7d93f12e57293c831c646f4cc7a5db59460c7ea8de6"
 
-[[package]]
-name = "maybe-uninit"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
-
-[[package]]
 name = "memoffset"
 version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -262,6 +251,12 @@ checksum = "b4fc2c02a7e374099d4ee95a193111f72d2110197fe200272371758f6c3643d8"
 dependencies = [
  "autocfg",
 ]
+
+[[package]]
+name = "multiboot"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "745e351d4f128ea9e266fe2dd04a1bd7349c60441d45ec8677520bae08e25d43"
 
 [[package]]
 name = "num_cpus"
@@ -405,6 +400,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
 dependencies = [
  "semver",
+]
+
+[[package]]
+name = "rusty-hermit"
+version = "0.3.14"
+dependencies = [
+ "bitflags",
+ "log",
+ "multiboot",
+ "x86",
 ]
 
 [[package]]

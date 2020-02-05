@@ -7,12 +7,49 @@
         {
             "type": "gdb",
             "request": "attach",
-            "name": "Attach to gdbserver",
+            "name": "Launch & Attach uhyve (gdb)",
             "executable": "./target/x86_64-unknown-hermit/debug/rusty_demo",
-            "target": "localhost:6677",
+            "target": ":2345",
             "remote": true,
             "cwd": "${workspaceRoot}",
-            "gdbpath": "/usr/local/Cellar/x86_64-elf-gdb/8.2/bin/x86_64-elf-gdb"
-        }
+            "valuesFormatting": "parseText",
+            "preLaunchTask": "Launch uhyve (Debug)",
+        },
+        {
+            "type": "gdb",
+            "request": "attach",
+            "name": "Launch & Attach QEMU (gdb)",
+            "executable": "./target/x86_64-unknown-hermit/debug/rusty_demo",
+            "target": ":2345",
+            "remote": true,
+            "autorun": [
+                // needed to make breakpoints work! Software-breaks get overwritten by loader otherwise
+                // Since all breakpoints get unset when one is hit and re-set on continue, we can use a
+                // hardware breakpoint on the entry (_start) of our actual program to break once it has
+                // been loaded. We then immediately continue.
+                // Unfortunately, vscode (sometimes?) opens an editor on _start anyways.
+                "hbreak _start",
+                "c",
+                ],
+            "cwd": "${workspaceRoot}",
+            "valuesFormatting": "parseText",
+            "preLaunchTask": "Launch QEMU (virtio test, DEBUG)", //"Launch QEMU (Debug)",
+        },
+        /*{
+            "name": "Launch & Attach uhyve (LLVM)",
+            "type": "lldb",
+            "request": "custom",
+            "targetCreateCommands": ["target create ${workspaceFolder}/target/x86_64-unknown-hermit/debug/hello_world"],
+            "processCreateCommands": ["gdb-remote localhost:2345"],
+            "preLaunchTask": "Launch uhyve (Debug)",
+        },*/
+        /*{
+            "name": "Debug Local",
+            "type": "gdb",
+            "request": "launch",
+            "target": "./target/debug/hello_world",
+            "cwd": "${workspaceRoot}",
+            "valuesFormatting": "parseText"
+        },*/
     ]
 }

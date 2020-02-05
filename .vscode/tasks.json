@@ -1,0 +1,269 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558 
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build (cargo build)",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "build",
+                "-Z",
+                "build-std=std,core,alloc,panic_abort",
+                "--target",
+                "x86_64-unknown-hermit"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Build Loader",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "loader"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/loader"
+            },
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Launch uhyve",
+            "type": "shell",
+            "command": "~/projects/master/uhyve/target/debug/uhyve",
+            "args": [
+                "${workspaceFolder}/target/x86_64-unknown-hermit/debug/rusty_demo"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "dependsOn": [
+                "Build (cargo build)"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Launch uhyve (Debug)",
+            "type": "shell",
+            "command": "~/projects/master/uhyve/target/debug/uhyve",
+            "args": [
+                "${workspaceFolder}/target/x86_64-unknown-hermit/debug/rusty_demo",
+                "-s",
+                "2345"
+            ],
+            "options": {
+                "env": {
+                    "RUST_BACKTRACE": "1",
+                    "RUST_LOG": "debug",
+                    "HERMIT_VERBOSE": "1"
+                }
+            },
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".",
+                        "endsPattern": "."
+                    }
+                }
+            ],
+            "dependsOn": [
+                "Build (cargo build)"
+            ]
+        },
+        {
+            "label": "Launch QEMU (Debug)",
+            "type": "shell",
+            "command": "qemu-system-x86_64",
+            "args": [
+                "-cpu",
+                "qemu64,apic,fsgsbase,rdtscp,xsave,fxsr",
+                "-enable-kvm",
+                "-display",
+                "none",
+                "-smp",
+                "1",
+                "-m",
+                "64M",
+                "-serial",
+                "stdio",
+                "-kernel",
+                "${workspaceFolder}/loader/target/x86_64-unknown-hermit-loader/debug/rusty-loader",
+                "-initrd",
+                "${workspaceFolder}/target/x86_64-unknown-hermit/debug/rusty_demo",
+                "-S",
+                "-gdb",
+                "tcp::2345"
+            ],
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".",
+                        "endsPattern": "."
+                    }
+                }
+            ],
+            "dependsOn": [
+                "Build (cargo build)",
+                "Build Loader"
+            ]
+        },
+        {
+            "label": "Launch QEMU (virtio test)",
+            "type": "shell",
+            "command": "qemu-system-x86_64",
+            "args": [
+                "-cpu",
+                "qemu64,apic,fsgsbase,rdtscp,xsave,fxsr",
+                "-enable-kvm",
+                "-display",
+                "none",
+                "-smp",
+                "1",
+                "-m",
+                "1G",
+                "-serial",
+                "stdio",
+                "-kernel",
+                "${workspaceFolder}/loader/target/x86_64-unknown-hermit-loader/debug/rusty-loader",
+                "-initrd",
+                "${workspaceFolder}/target/x86_64-unknown-hermit/debug/rusty_demo",
+                // network
+                "-netdev", "user,id=mynet0",
+                "-device", "virtio-net,netdev=mynet0",
+                // virtiofs
+                "-chardev", "socket,id=char0,path=/tmp/vhostqemu",
+                "-device", "vhost-user-fs-pci,queue-size=1024,chardev=char0,tag=myfs",
+                // force use of memory sharable with virtiofsd
+                "-object", "memory-backend-file,id=mem,size=1G,mem-path=/dev/shm,share=on",
+                "-numa", "node,memdev=mem",                
+            ],
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".",
+                        "endsPattern": "."
+                    }
+                }
+            ],
+            "dependsOn": [
+                "Clean hermit-sys",
+                "Build Loader",
+                "Build (cargo build)"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Clean hermit-sys",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "clean",
+                "-p", "hermit-sys",
+                "--target", "x86_64-unknown-hermit"
+            ],
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Launch QEMU (virtio test, DEBUG)",
+            "type": "shell",
+            "command": "qemu-system-x86_64",
+            "args": [
+                "-cpu",
+                "qemu64,apic,fsgsbase,rdtscp,xsave,fxsr",
+                "-enable-kvm",
+                "-display",
+                "none",
+                "-smp",
+                "1",
+                "-m",
+                "64M",
+                "-serial",
+                "stdio",
+                "-kernel",
+                "${workspaceFolder}/loader/target/x86_64-unknown-hermit-loader/debug/rusty-loader",
+                "-initrd",
+                "${workspaceFolder}/target/x86_64-unknown-hermit/debug/rusty_demo",
+                // network
+                "-netdev", "user,id=mynet0",
+                "-device", "virtio-net,netdev=mynet0",
+                // virtiofs
+                "-chardev", "socket,id=char0,path=/tmp/vhostqemu",
+                "-device", "vhost-user-fs-pci,queue-size=1024,chardev=char0,tag=myfs",
+                // debug
+                "-S",
+                "-gdb",
+                "tcp::2345"
+            ],
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".",
+                        "endsPattern": "."
+                    }
+                }
+            ],
+            "dependsOn": [
+                "Clean hermit-sys",
+                "Build Loader",
+                "Build (cargo build)"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+    ]
+}
