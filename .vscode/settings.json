@@ -6,5 +6,9 @@
     "lldb.verboseLogging": true,
     "rust-client.disableRustup": true,
     "rust.all_targets": false,
-    "rust.target": "x86_64-unknown-hermit",
+    "debug.allowBreakpointsEverywhere": true,
+    //"rust.target": "x86_64-unknown-hermit",
+    //"rust.racer_completion": false,
+    "rust-analyzer.cargo-watch.allTargets": false,
+    "rust-analyzer.cargo-watch.arguments": ["-Z", "build-std=std,core,alloc,panic_abort", "--target", "x86_64-unknown-hermit"],
 }
