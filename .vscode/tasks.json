@@ -47,6 +47,13 @@
             "dependsOn": [
                 "Build (cargo build)"
             ],
+            "options": {
+                "env": {
+                    "RUST_BACKTRACE": "1",
+                    "RUST_LOG": "debug",
+                    "HERMIT_VERBOSE": "1"
+                }
+            },
             "group": "build"
         },
         {
@@ -109,7 +116,10 @@
                 "${workspaceFolder}/target/x86_64-unknown-hermit/debug/rusty_demo",
                 "-S",
                 "-gdb",
-                "tcp::2345"
+                "tcp::2345",
+                // enable interrupt remapping in qemu
+                "-device", "intel-iommu,intremap=on",
+                "-machine", "q35,kernel-irqchip=split",
             ],
             "isBackground": true,
             "problemMatcher": [
@@ -162,7 +172,10 @@
                 "-device", "vhost-user-fs-pci,queue-size=1024,chardev=char0,tag=myfs",
                 // force use of memory sharable with virtiofsd
                 "-object", "memory-backend-file,id=mem,size=1G,mem-path=/dev/shm,share=on",
-                "-numa", "node,memdev=mem",                
+                "-numa", "node,memdev=mem",
+                // enable interrupt remapping in qemu
+                "-device", "intel-iommu,intremap=on",
+                "-machine", "q35,kernel-irqchip=split",
             ],
             "isBackground": true,
             "problemMatcher": [
@@ -195,7 +208,7 @@
         {
             "label": "Clean hermit-sys",
             "type": "shell",
-            "command": "cargo",
+            /*"command": "cargo",
             "args": [
                 "clean",
                 "-p", "hermit-sys",
@@ -203,6 +216,10 @@
             ],
             "problemMatcher": [
                 "$rustc"
+            ],*/
+            "command": "touch",
+            "args": [
+                "hermit-sys/build.rs",
             ],
             "group": "build"
         },
@@ -235,7 +252,10 @@
                 // debug
                 "-S",
                 "-gdb",
-                "tcp::2345"
+                "tcp::2345",
+                // enable interrupt remapping in qemu
+                "-device", "intel-iommu,intremap=on",
+                "-machine", "q35,kernel-irqchip=split",
             ],
             "isBackground": true,
             "problemMatcher": [
