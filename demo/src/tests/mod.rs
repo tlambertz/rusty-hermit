@@ -207,31 +207,30 @@ pub fn pi_parallel(nthreads: u64, num_steps: u64) -> Result<(), ()> {
 }
 
 pub fn read_file() -> Result<(), std::io::Error> {
-	let mut file = File::open("/etc/hostname")?;
+	let mut file = File::open("/myfs/testvm")?;
 	let mut contents = String::new();
 	file.read_to_string(&mut contents)?;
 
-	println!("Hostname: {}", contents);
+	println!("testvm file: '{}'", contents);
 
 	Ok(())
 }
 
 pub fn create_file() -> Result<(), std::io::Error> {
 	{
-		let mut file = File::create("/tmp/foo.txt")?;
+		let mut file = File::create("/myfs/createtest.txt")?;
 		file.write_all(b"Hello, world!")?;
 	}
 
 	let contents = {
-		let mut file = File::open("/tmp/foo.txt")?;
+		let mut file = File::open("/myfs/createtest.txt")?;
 		let mut contents = String::new();
 		file.read_to_string(&mut contents)?;
 		contents
 	};
 
 	// delete temporary file
-	std::fs::remove_file("/tmp/foo.txt")?;
-
+	//std::fs::remove_file("/myfs/createtest.txt")?;
 	if contents == "Hello, world!" {
 		Ok(())
 	} else {
