@@ -14,7 +14,7 @@ edition = "2018"
 
 [features]
 # controlls whether RustyHermit is build with -Z instrument-mcount
-#instrument = ["rftrace"]
+instrument = ["rftrace"]
 trace = []
 # only for internal usage, please don't use it
 with_submodule = []
@@ -42,7 +42,7 @@ features = ["std", "ethernet", "socket-udp", "socket-tcp", "proto-ipv4", "proto-
 [dependencies.crossbeam-channel]
 version = "0.4"
 
-#[dependencies.rftrace]
-#optional = true
-#features = ["backend", "buildstd", "hermit"]
-#git = "https://github.com/tlambertz/rftrace"
+[dependencies.rftrace]
+optional = true
+features = ["autokernel", "buildcore", "interruptsafe"]
+git = "https://github.com/tlambertz/rftrace"
